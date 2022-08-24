@@ -11,6 +11,7 @@ namespace CustomerLibrary.Tests.BusinessEntities
 
             Assert.NotNull(address);
             Assert.Equal(0, address.AddressId);
+            Assert.Equal(0, address.CustomerId);
             Assert.Equal(string.Empty, address.AddressLine);
             Assert.Equal(string.Empty, address.AddressLine2);
             Assert.Equal(AddressType.Unknown, address.AddressType);

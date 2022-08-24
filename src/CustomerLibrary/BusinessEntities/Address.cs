@@ -3,6 +3,7 @@
     public class Address
     {
         public int AddressId { get; set; } = 0;
+        public int CustomerId { get; set; } = 0;
         public string AddressLine { get; set; } = string.Empty;
         public string AddressLine2 { get; set; } = string.Empty;
         public AddressType AddressType { get; set; } = AddressType.Unknown;

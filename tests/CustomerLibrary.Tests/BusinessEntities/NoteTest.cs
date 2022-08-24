@@ -11,6 +11,7 @@ namespace CustomerLibrary.Tests.BusinessEntities
 
             Assert.NotNull(note);
             Assert.Equal(0, note.NoteId);
+            Assert.Equal(0, note.CustomerId);
             Assert.Null(note.Text);
         }
     }
