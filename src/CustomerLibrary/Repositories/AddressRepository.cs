@@ -12,7 +12,7 @@ namespace CustomerLibrary.Repositories
 
             var command = new SqlCommand(
                 "INSERT INTO [Address] ([CustomerID], [AddressLine], [AddressLine2], [AddressType], [City], [PostalCode], [State], [Country]) " +
-                "OUTPUT INSERTED.[AddressId] " +
+                "OUTPUT INSERTED.[AddressID] " +
                 "VALUES (@CustomerId, @AddressLine, @AddressLine2, @AddressType, @City, @PostalCode, @State, @Country)",
                 connection);
             command.Parameters.AddRange(new SqlParameter[]
