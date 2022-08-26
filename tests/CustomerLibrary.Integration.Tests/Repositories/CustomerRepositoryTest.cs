@@ -126,7 +126,7 @@ namespace CustomerLibrary.Integration.Tests.Repositories
             Assert.NotNull(readCustomer);
         }
 
-        private static Customer GenerateDefaultCustomer()
+        public static Customer GenerateDefaultCustomer()
         {
             return new Customer
             {
@@ -158,7 +158,7 @@ namespace CustomerLibrary.Integration.Tests.Repositories
             return customerRepository.Create(customer);
         }
 
-        public static Customer ReadCustomer(int customerId)
+        public static Customer? ReadCustomer(int customerId)
         {
             var customerRepository = new CustomerRepository();
             return customerRepository.Read(customerId);

@@ -17,7 +17,7 @@ namespace CustomerLibrary.Integration.Tests.Repositories
         private static IEnumerable<object[]> RepositoryTestData()
         {
             yield return new object[] { new CustomerRepository(), typeof(IRepository<Customer>) };
-            //yield return new object[] { Type.GetType("Address"), new AddressRepository() };
+            yield return new object[] { new AddressRepository(), typeof(IRepository<Address>) };
             //yield return new object[] { Type.GetType("Note"), new NoteRepository() };
         }
     }
