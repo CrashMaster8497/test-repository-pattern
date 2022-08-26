@@ -134,7 +134,7 @@ namespace CustomerLibrary.Integration.Tests.Repositories
 
         public static int? CreateNote(Note note)
         {
-            var customer = CustomerRepositoryTest.GenerateDefaultCustomer();
+            var customer = CustomerRepositoryFixture.GetDefaultCustomer();
             int customerId = CustomerRepositoryFixture.CreateCustomer(customer).Value;
             note.CustomerId = customerId;
 

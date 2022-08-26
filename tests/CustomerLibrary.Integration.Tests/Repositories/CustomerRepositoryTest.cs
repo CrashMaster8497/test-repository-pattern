@@ -1,5 +1,6 @@
 ﻿using CustomerLibrary.BusinessEntities;
 using CustomerLibrary.Repositories;
+using FluentAssertions;
 
 namespace CustomerLibrary.Integration.Tests.Repositories
 {
@@ -9,11 +10,9 @@ namespace CustomerLibrary.Integration.Tests.Repositories
         [Fact]
         public void ShouldBeAbleToCreateCustomerRepository()
         {
-            CustomerRepositoryFixture.DeleteAllCustomers();
-
             var customerRepository = CustomerRepositoryFixture.GetCustomerRepository();
 
-            Assert.NotNull(customerRepository);
+            customerRepository.Should().NotBeNull();
         }
 
         [Fact]
@@ -21,19 +20,14 @@ namespace CustomerLibrary.Integration.Tests.Repositories
         {
             CustomerRepositoryFixture.DeleteAllCustomers();
 
-            var customer = GenerateDefaultCustomer();
-            int? customerId = CustomerRepositoryFixture.CreateCustomer(customer);
+            var customer = CustomerRepositoryFixture.GetDefaultCustomer();
+            int customerId = CustomerRepositoryFixture.CreateCustomer(customer).Value;
+            customer.CustomerId = customerId;
 
-            Assert.NotNull(customerId);
+            var readCustomer = CustomerRepositoryFixture.ReadCustomer(customerId);
 
-            var createdCustomer = CustomerRepositoryFixture.ReadCustomer((int)customerId);
-
-            Assert.NotNull(createdCustomer);
-            Assert.Equal(customer.FirstName, createdCustomer.FirstName);
-            Assert.Equal(customer.LastName, createdCustomer.LastName);
-            Assert.Equal(customer.PhoneNumber, createdCustomer.PhoneNumber);
-            Assert.Equal(customer.Email, createdCustomer.Email);
-            Assert.Equal(customer.TotalPurchasesAmount, createdCustomer.TotalPurchasesAmount);
+            readCustomer.Should().NotBeNull();
+            readCustomer.Should().BeEquivalentTo(customer);
         }
 
         [Fact]
@@ -41,12 +35,12 @@ namespace CustomerLibrary.Integration.Tests.Repositories
         {
             CustomerRepositoryFixture.DeleteAllCustomers();
 
-            var customer = GenerateDefaultCustomer();
-            int? customerId = CustomerRepositoryFixture.CreateCustomer(customer);
+            var customer = CustomerRepositoryFixture.GetDefaultCustomer();
+            CustomerRepositoryFixture.CreateCustomer(customer);
 
-            var readCustomer = CustomerRepositoryFixture.ReadCustomer((int)customerId + 1);
+            var readCustomer = CustomerRepositoryFixture.ReadCustomer(0);
 
-            Assert.Null(readCustomer);
+            readCustomer.Should().BeNull();
         }
 
         [Fact]
@@ -54,20 +48,16 @@ namespace CustomerLibrary.Integration.Tests.Repositories
         {
             CustomerRepositoryFixture.DeleteAllCustomers();
 
-            var customer = GenerateDefaultCustomer();
-            int? customerId = CustomerRepositoryFixture.CreateCustomer(customer);
-            var createdCustomer = CustomerRepositoryFixture.ReadCustomer((int)customerId);
+            var customer = CustomerRepositoryFixture.GetDefaultCustomer();
+            int customerId = CustomerRepositoryFixture.CreateCustomer(customer).Value;
 
-            createdCustomer.PhoneNumber = "+12112111111";
-            bool isUpdated = CustomerRepositoryFixture.UpdateCustomer(createdCustomer);
-            var updatedCustomer = CustomerRepositoryFixture.ReadCustomer((int)customerId);
+            var modifiedCustomer = CustomerRepositoryFixture.ReadCustomer(customerId);
+            modifiedCustomer.PhoneNumber = "+12112111111";
+            bool isUpdated = CustomerRepositoryFixture.UpdateCustomer(modifiedCustomer);
+            var updatedCustomer = CustomerRepositoryFixture.ReadCustomer(customerId);
 
-            Assert.True(isUpdated);
-            Assert.Equal(customer.FirstName, updatedCustomer.FirstName);
-            Assert.Equal(customer.LastName, updatedCustomer.LastName);
-            Assert.Equal("+12112111111", updatedCustomer.PhoneNumber);
-            Assert.Equal(customer.Email, updatedCustomer.Email);
-            Assert.Equal(customer.TotalPurchasesAmount, updatedCustomer.TotalPurchasesAmount);
+            isUpdated.Should().BeTrue();
+            updatedCustomer.Should().BeEquivalentTo(modifiedCustomer);
         }
 
         [Fact]
@@ -75,21 +65,18 @@ namespace CustomerLibrary.Integration.Tests.Repositories
         {
             CustomerRepositoryFixture.DeleteAllCustomers();
 
-            var customer = GenerateDefaultCustomer();
-            int? customerId = CustomerRepositoryFixture.CreateCustomer(customer);
-            var createdCustomer = CustomerRepositoryFixture.ReadCustomer((int)customerId);
+            var customer = CustomerRepositoryFixture.GetDefaultCustomer();
+            int customerId = CustomerRepositoryFixture.CreateCustomer(customer).Value;
+            var createdCustomer = CustomerRepositoryFixture.ReadCustomer(customerId);
 
-            createdCustomer.CustomerId++;
-            createdCustomer.PhoneNumber = "+12112111111";
-            bool isUpdated = CustomerRepositoryFixture.UpdateCustomer(createdCustomer);
-            var updatedCustomer = CustomerRepositoryFixture.ReadCustomer((int)customerId);
+            var modifiedCustomer = CustomerRepositoryFixture.ReadCustomer(customerId);
+            modifiedCustomer.CustomerId = 0;
+            modifiedCustomer.PhoneNumber = "+12112111111";
+            bool isUpdated = CustomerRepositoryFixture.UpdateCustomer(modifiedCustomer);
+            var updatedCustomer = CustomerRepositoryFixture.ReadCustomer(customerId);
 
-            Assert.False(isUpdated);
-            Assert.Equal(customer.FirstName, updatedCustomer.FirstName);
-            Assert.Equal(customer.LastName, updatedCustomer.LastName);
-            Assert.Equal(customer.PhoneNumber, updatedCustomer.PhoneNumber);
-            Assert.Equal(customer.Email, updatedCustomer.Email);
-            Assert.Equal(customer.TotalPurchasesAmount, updatedCustomer.TotalPurchasesAmount);
+            isUpdated.Should().BeFalse();
+            updatedCustomer.Should().BeEquivalentTo(createdCustomer);
         }
 
         [Fact]
@@ -97,16 +84,14 @@ namespace CustomerLibrary.Integration.Tests.Repositories
         {
             CustomerRepositoryFixture.DeleteAllCustomers();
 
-            var customer = GenerateDefaultCustomer();
-            int? customerId = CustomerRepositoryFixture.CreateCustomer(customer);
+            var customer = CustomerRepositoryFixture.GetDefaultCustomer();
+            int customerId = CustomerRepositoryFixture.CreateCustomer(customer).Value;
 
-            bool isDeleted = CustomerRepositoryFixture.DeleteCustomer((int)customerId);
+            bool isDeleted = CustomerRepositoryFixture.DeleteCustomer(customerId);
+            var deletedCustomer = CustomerRepositoryFixture.ReadCustomer(customerId);
 
-            Assert.True(isDeleted);
-
-            var readCustomer = CustomerRepositoryFixture.ReadCustomer((int)customerId);
-
-            Assert.Null(readCustomer);
+            isDeleted.Should().BeTrue();
+            deletedCustomer.Should().BeNull();
         }
 
         [Fact]
@@ -114,19 +99,26 @@ namespace CustomerLibrary.Integration.Tests.Repositories
         {
             CustomerRepositoryFixture.DeleteAllCustomers();
 
-            var customer = GenerateDefaultCustomer();
-            int? customerId = CustomerRepositoryFixture.CreateCustomer(customer);
+            var customer = CustomerRepositoryFixture.GetDefaultCustomer();
+            int customerId = CustomerRepositoryFixture.CreateCustomer(customer).Value;
+            var createdCustomer = CustomerRepositoryFixture.ReadCustomer(customerId);
 
-            bool isDeleted = CustomerRepositoryFixture.DeleteCustomer((int)customerId + 1);
+            bool isDeleted = CustomerRepositoryFixture.DeleteCustomer(0);
+            var deletedCustomer = CustomerRepositoryFixture.ReadCustomer(customerId);
 
-            Assert.False(isDeleted);
+            isDeleted.Should().BeFalse();
+            deletedCustomer.Should().BeEquivalentTo(createdCustomer);
+        }
+    }
 
-            var readCustomer = CustomerRepositoryFixture.ReadCustomer((int)customerId);
-
-            Assert.NotNull(readCustomer);
+    public class CustomerRepositoryFixture
+    {
+        public static CustomerRepository GetCustomerRepository()
+        {
+            return new CustomerRepository();
         }
 
-        public static Customer GenerateDefaultCustomer()
+        public static Customer GetDefaultCustomer()
         {
             return new Customer
             {
@@ -136,14 +128,6 @@ namespace CustomerLibrary.Integration.Tests.Repositories
                 Email = "a@b.c",
                 TotalPurchasesAmount = 0
             };
-        }
-    }
-
-    public class CustomerRepositoryFixture
-    {
-        public static CustomerRepository GetCustomerRepository()
-        {
-            return new CustomerRepository();
         }
 
         public static void DeleteAllCustomers()

@@ -61,7 +61,7 @@ namespace CustomerLibrary.Integration.Tests.Repositories
         }
 
         [Fact]
-        public void ShoundNotUpdateWithWrongId()
+        public void ShouldNotUpdateWithWrongId()
         {
             AddressRepositoryFixture.DeleteAllAddresses();
 
@@ -140,7 +140,7 @@ namespace CustomerLibrary.Integration.Tests.Repositories
 
         public static int? CreateAddress(Address address)
         {
-            var customer = CustomerRepositoryTest.GenerateDefaultCustomer();
+            var customer = CustomerRepositoryFixture.GetDefaultCustomer();
             int customerId = CustomerRepositoryFixture.CreateCustomer(customer).Value;
             address.CustomerId = customerId;
 
